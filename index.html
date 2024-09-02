@@ -89,351 +89,358 @@
     </style>
 </head>
 <body>
-
-<div class="container">
-    <h1 class="text-center mt-3">الفاتورة الإلكترونية</h1>
-
-    <form id="invoiceForm">
-        <!-- Company Information -->
-        <div class="form-group">
-            <label for="companyName">اسم الشركة:</label>
-            <input type="text" class="form-control" id="companyName" placeholder="أدخل اسم الشركة">
-        </div>
-        <div class="form-group">
-            <label for="taxNumber">الرقم الضريبي:</label>
-            <input type="text" class="form-control" id="taxNumber" placeholder="أدخل الرقم الضريبي">
-        </div>
-        <div class="form-group">
-            <label for="address">العنوان:</label>
-            <input type="text" class="form-control" id="address" placeholder="أدخل العنوان">
-        </div>
-        <div class="form-group">
-            <label for="invoiceDate">تاريخ الفاتورة:</label>
-            <input type="datetime-local" class="form-control" id="invoiceDate">
-        </div>
-
-        <!-- Customer Information Spoiler -->
-        <div class="spoiler">
-            <button type="button" class="btn btn-secondary" onclick="toggleSpoiler()">عرض/إخفاء معلومات العميل</button>
-            <div class="spoiler-content" id="spoilerContent">
-                <div class="form-group">
-                    <label for="customerName">العميل:</label>
-                    <input type="text" class="form-control" id="customerName" placeholder="أدخل اسم العميل">
-                </div>
-                <div class="form-group">
-                    <label for="customerPhone">رقم الجوال:</label>
-                    <input type="text" class="form-control" id="customerPhone" placeholder="أدخل رقم الجوال">
-                </div>
-                <div class="form-group">
-                    <label for="customerTaxNumber">الرقم الضريبي:</label>
-                    <input type="text" class="form-control" id="customerTaxNumber" placeholder="أدخل الرقم الضريبي">
+    <div class="container">
+        <h1 class="text-center mt-3">الفاتورة الإلكترونية</h1>
+    
+        <form id="invoiceForm">
+            <!-- Company Information -->
+            <div class="form-group">
+                <label for="companyName">اسم الشركة:</label>
+                <input type="text" class="form-control" id="companyName" placeholder="أدخل اسم الشركة">
+            </div>
+            <div class="form-group">
+                <label for="taxNumber">الرقم الضريبي:</label>
+                <input type="text" class="form-control" id="taxNumber" placeholder="أدخل الرقم الضريبي">
+            </div>
+            <div class="form-group">
+                <label for="address">العنوان:</label>
+                <input type="text" class="form-control" id="address" placeholder="أدخل العنوان">
+            </div>
+            <div class="form-group">
+                <label for="invoiceDate">تاريخ الفاتورة:</label>
+                <input type="datetime-local" class="form-control" id="invoiceDate">
+            </div>
+    
+            <!-- Customer Information Spoiler -->
+            <div class="spoiler">
+                <button type="button" class="btn btn-secondary" onclick="toggleSpoiler()">عرض/إخفاء معلومات العميل</button>
+                <div class="spoiler-content" id="spoilerContent">
+                    <div class="form-group">
+                        <label for="customerName">العميل:</label>
+                        <input type="text" class="form-control" id="customerName" placeholder="أدخل اسم العميل">
+                    </div>
+                    <div class="form-group">
+                        <label for="customerPhone">رقم الجوال:</label>
+                        <input type="text" class="form-control" id="customerPhone" placeholder="أدخل رقم الجوال">
+                    </div>
+                    <div class="form-group">
+                        <label for="customerTaxNumber">الرقم الضريبي:</label>
+                        <input type="text" class="form-control" id="customerTaxNumber" placeholder="أدخل الرقم الضريبي">
+                    </div>
                 </div>
             </div>
+    
+            <!-- Product Lines -->
+            <div id="productLines">
+                <h3>المنتجات:</h3>
+                <div class="product-line">
+                    <input type="text" class="form-control" placeholder="المنتج">
+                    <input type="number" class="form-control quantity" placeholder="الكمية" min="1" value="1" oninput="calculateProductTotal(this)">
+                    <input type="number" class="form-control price" placeholder="السعر" step="0.01" oninput="calculateProductTotal(this)">
+                    <input type="number" class="form-control total" placeholder="الاجمالي" readonly>
+                    <span class="remove-product" onclick="removeProduct(this)">&times;</span>
+                </div>
+            </div>
+            <button type="button" class="btn btn-secondary" onclick="addProductLine()">إضافة منتج</button>
+    
+            <!-- Invoice Totals -->
+            <div class="form-group">
+                <label for="amountBeforeTax">المبلغ قبل الضريبة:</label>
+                <input type="number" class="form-control" step="0.01" id="amountBeforeTax" readonly>
+            </div>
+            <div class="form-group">
+                <label for="taxAmount">مبلغ الضريبة:</label>
+                <input type="number" class="form-control" step="0.01" id="taxAmount" readonly>
+            </div>
+            <div class="form-group">
+                <label for="invoiceTotal">اجمالي الفاتورة:</label>
+                <input type="number" class="form-control" step="0.01" id="invoiceTotal" readonly>
+            </div>
+    
+            <!-- Generate and Clear Buttons -->
+            <button type="button" class="btn btn-primary" onclick="generateInvoice()">توليد الفاتورة</button>
+            <button type="button" class="btn btn-secondary" onclick="clearForm()">مسح</button>
+        </form>
+    
+        <div id="invoice">
+            <div class="invoice-header">
+                <h2>فاتورة ضريبية مبسطة</h2>
+                <div id="companyCustomerInfo" class="clearfix">
+                    <div id="companyInfo">
+                        <h3>معلومات الشركة</h3>
+                        <p>اسم الشركة: <span id="invCompanyName"></span></p>
+                        <p>الرقم الضريبي: <span id="invTaxNumber"></span></p>
+                        <p>العنوان: <span id="invAddress"></span></p>
+                    </div>
+                    <div id="customerInfo">
+                        <h3>معلومات العميل</h3>
+                        <p>العميل: <span id="invCustomerName"></span></p>
+                        <p>رقم الجوال: <span id="invCustomerPhone"></span></p>
+                        <p>الرقم الضريبي: <span id="invCustomerTaxNumber"></span></p>
+                    </div>
+                </div>
+                <p>تاريخ الفاتورة: <span id="invInvoiceDate"></span></p>
+            </div>
+            <hr>
+            <div class="invoice-body">
+                <h3>المنتجات:</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>المنتج</th>
+                            <th>الكمية</th>
+                            <th>السعر</th>
+                            <th>الاجمالي</th>
+                        </tr>
+                    </thead>
+                    <tbody id="invProductLines"></tbody>
+                </table>
+                <p>المبلغ قبل الضريبة: <span id="invAmountBeforeTax"></span></p>
+                <p>مبلغ الضريبة: <span id="invTaxAmount"></span></p>
+                <p>اجمالي الفاتورة: <span id="invInvoiceTotal"></span></p>
+            </div>
+            <div id="qr-code" class="text-center mt-3"></div>
+            <button type="button" class="btn btn-success" id="downloadButton" onclick="downloadInvoice()">تحميل الفاتورة</button>
         </div>
-
-        <!-- Product Lines -->
-        <div id="productLines">
-            <h3>المنتجات:</h3>
-            <div class="product-line">
+    </div>
+    
+    <script>
+        document.getElementById('invoiceTotal').addEventListener('input', function() {
+            updateTaxAmount();
+        });
+    
+        function saveToLocalStorage() {
+            const fields = ['companyName', 'taxNumber', 'address', 'invoiceDate', 'customerName', 'customerPhone', 'customerTaxNumber'];
+            fields.forEach(field => {
+                const value = document.getElementById(field).value;
+                localStorage.setItem(field, value);
+            });
+        }
+    
+        function loadFromLocalStorage() {
+            const fields = ['companyName', 'taxNumber', 'address', 'invoiceDate', 'customerName', 'customerPhone', 'customerTaxNumber'];
+            fields.forEach(field => {
+                const value = localStorage.getItem(field);
+                if (value) {
+                    document.getElementById(field).value = value;
+                }
+            });
+        }
+    
+        function addProductLine() {
+            const productLine = document.createElement('div');
+            productLine.className = 'product-line';
+            productLine.innerHTML = `
                 <input type="text" class="form-control" placeholder="المنتج">
                 <input type="number" class="form-control quantity" placeholder="الكمية" min="1" value="1" oninput="calculateProductTotal(this)">
                 <input type="number" class="form-control price" placeholder="السعر" step="0.01" oninput="calculateProductTotal(this)">
                 <input type="number" class="form-control total" placeholder="الاجمالي" readonly>
                 <span class="remove-product" onclick="removeProduct(this)">&times;</span>
-            </div>
-        </div>
-        <button type="button" class="btn btn-secondary" onclick="addProductLine()">إضافة منتج</button>
-
-        <!-- Invoice Totals -->
-        <div class="form-group">
-            <label for="amountBeforeTax">المبلغ قبل الضريبة:</label>
-            <input type="number" class="form-control" step="0.01" id="amountBeforeTax" readonly>
-        </div>
-        <div class="form-group">
-            <label for="taxAmount">مبلغ الضريبة:</label>
-            <input type="number" class="form-control" step="0.01" id="taxAmount" readonly>
-        </div>
-        <div class="form-group">
-            <label for="invoiceTotal">اجمالي الفاتورة:</label>
-            <input type="number" class="form-control" step="0.01" id="invoiceTotal" readonly>
-        </div>
-
-        <!-- Generate and Clear Buttons -->
-        <button type="button" class="btn btn-primary" onclick="generateInvoice()">توليد الفاتورة</button>
-        <button type="button" class="btn btn-secondary" onclick="clearForm()">مسح</button>
-    </form>
-
-    <div id="invoice">
-        <div class="invoice-header">
-            <h2>فاتورة ضريبية مبسطة</h2>
-            <div id="companyCustomerInfo" class="clearfix">
-                <div id="companyInfo">
-                    <h3>معلومات الشركة</h3>
-                    <p>اسم الشركة: <span id="invCompanyName"></span></p>
-                    <p>الرقم الضريبي: <span id="invTaxNumber"></span></p>
-                    <p>العنوان: <span id="invAddress"></span></p>
-                </div>
-                <div id="customerInfo">
-                    <h3>معلومات العميل</h3>
-                    <p>العميل: <span id="invCustomerName"></span></p>
-                    <p>رقم الجوال: <span id="invCustomerPhone"></span></p>
-                    <p>الرقم الضريبي: <span id="invCustomerTaxNumber"></span></p>
-                </div>
-            </div>
-            <p>تاريخ الفاتورة: <span id="invInvoiceDate"></span></p>
-        </div>
-        <hr>
-        <div class="invoice-body">
-            <h3>المنتجات:</h3>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>المنتج</th>
-                        <th>الكمية</th>
-                        <th>السعر</th>
-                        <th>الاجمالي</th>
-                    </tr>
-                </thead>
-                <tbody id="invProductLines"></tbody>
-            </table>
-            <p>المبلغ قبل الضريبة: <span id="invAmountBeforeTax"></span></p>
-            <p>مبلغ الضريبة: <span id="invTaxAmount"></span></p>
-            <p>اجمالي الفاتورة: <span id="invInvoiceTotal"></span></p>
-        </div>
-        <div id="qr-code" class="text-center mt-3"></div>
-        <button type="button" class="btn btn-success" id="downloadButton" onclick="downloadInvoice()">تحميل الفاتورة</button>
-    </div>
-</div>
-
-<script>
-    document.getElementById('invoiceTotal').addEventListener('input', function() {
-        updateTaxAmount();
-    });
-
-    function saveToLocalStorage() {
-        const fields = ['companyName', 'taxNumber', 'address', 'invoiceDate', 'customerName', 'customerPhone', 'customerTaxNumber'];
-        fields.forEach(field => {
-            const value = document.getElementById(field).value;
-            localStorage.setItem(field, value);
-        });
-    }
-
-    function loadFromLocalStorage() {
-        const fields = ['companyName', 'taxNumber', 'address', 'invoiceDate', 'customerName', 'customerPhone', 'customerTaxNumber'];
-        fields.forEach(field => {
-            const value = localStorage.getItem(field);
-            if (value) {
-                document.getElementById(field).value = value;
-            }
-        });
-    }
-
-    function addProductLine() {
-        const productLine = document.createElement('div');
-        productLine.className = 'product-line';
-        productLine.innerHTML = `
-            <input type="text" class="form-control" placeholder="المنتج">
-            <input type="number" class="form-control quantity" placeholder="الكمية" min="1" value="1" oninput="calculateProductTotal(this)">
-            <input type="number" class="form-control price" placeholder="السعر" step="0.01" oninput="calculateProductTotal(this)">
-            <input type="number" class="form-control total" placeholder="الاجمالي" readonly>
-            <span class="remove-product" onclick="removeProduct(this)">&times;</span>
-        `;
-        document.getElementById('productLines').appendChild(productLine);
-    }
-
-    function removeProduct(element) {
-        const productLine = element.parentNode;
-        productLine.parentNode.removeChild(productLine);
-        calculateInvoiceTotal();
-    }
-
-    function calculateProductTotal(element) {
-        const productLine = element.parentNode;
-        const quantity = productLine.querySelector('.quantity').value;
-        const price = productLine.querySelector('.price').value;
-        const total = productLine.querySelector('.total');
-
-        if (!isNaN(quantity) && !isNaN(price)) {
-            total.value = (quantity * price).toFixed(2);
-        } else {
-            total.value = '';
-        }
-        calculateInvoiceTotal();
-    }
-
-    function calculateInvoiceTotal() {
-        let invoiceTotal = 0;
-        const totals = document.querySelectorAll('.total');
-        totals.forEach(total => {
-            invoiceTotal += parseFloat(total.value) || 0;
-        });
-        const amountBeforeTax = invoiceTotal / 1.15;
-        document.getElementById('amountBeforeTax').value = amountBeforeTax.toFixed(2);
-        document.getElementById('invoiceTotal').value = invoiceTotal.toFixed(2);
-        updateTaxAmount();
-    }
-
-    function updateTaxAmount() {
-        const invoiceTotal = parseFloat(document.getElementById('invoiceTotal').value) || 0;
-        const taxAmount = invoiceTotal * 15 / 115;
-        document.getElementById('taxAmount').value = taxAmount.toFixed(2);
-    }
-
-    function generateInvoice() {
-        calculateInvoiceTotal(); // Ensure totals are calculated
-        saveToLocalStorage(); // Save data to local storage
-
-        var companyName = document.getElementById('companyName').value;
-        var taxNumber = document.getElementById('taxNumber').value;
-        var address = document.getElementById('address').value;
-        var invoiceDate = document.getElementById('invoiceDate').value;
-        var amountBeforeTax = document.getElementById('amountBeforeTax').value;
-        var invoiceTotal = document.getElementById('invoiceTotal').value;
-        var taxAmount = document.getElementById('taxAmount').value;
-        var customerName = document.getElementById('customerName').value;
-        var customerPhone = document.getElementById('customerPhone').value;
-        var customerTaxNumber = document.getElementById('customerTaxNumber').value;
-
-        if (!companyName || !taxNumber || !address || !invoiceDate || !amountBeforeTax || !invoiceTotal || !taxAmount) {
-            alert('الرجاء تعبئة جميع الحقول');
-            return;
-        }
-
-        document.getElementById('invCompanyName').textContent = companyName;
-        document.getElementById('invTaxNumber').textContent = taxNumber;
-        document.getElementById('invAddress').textContent = address;
-        document.getElementById('invInvoiceDate').textContent = new Date(invoiceDate).toLocaleString('ar-EG', { timeZone: 'Asia/Riyadh' });
-        document.getElementById('invAmountBeforeTax').textContent = amountBeforeTax;
-        document.getElementById('invInvoiceTotal').textContent = invoiceTotal;
-        document.getElementById('invTaxAmount').textContent = taxAmount;
-
-        if (customerName || customerPhone || customerTaxNumber) {
-            document.getElementById('invCustomerName').textContent = customerName;
-            document.getElementById('invCustomerPhone').textContent = customerPhone;
-            document.getElementById('invCustomerTaxNumber').textContent = customerTaxNumber;
-            document.getElementById('customerInfo').style.display = 'block';
-            document.getElementById('companyInfo').style.float = 'right';
-            document.getElementById('customerInfo').style.float = 'left';
-        } else {
-            document.getElementById('customerInfo').style.display = 'none';
-            document.getElementById('companyInfo').style.float = 'none';
-            document.getElementById('companyInfo').style.textAlign = 'center';
-        }
-
-        const invProductLines = document.getElementById('invProductLines');
-        invProductLines.innerHTML = '';
-
-        document.querySelectorAll('.product-line').forEach(line => {
-            const product = line.querySelector('input[placeholder="المنتج"]').value;
-            const quantity = line.querySelector('.quantity').value;
-            const price = line.querySelector('.price').value;
-            const total = line.querySelector('.total').value;
-
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${product}</td>
-                <td>${quantity}</td>
-                <td>${price}</td>
-                <td>${total}</td>
             `;
-            invProductLines.appendChild(row);
-        });
-
-        generateQRCode();
-
-        document.getElementById('invoice').style.display = 'block';
-    }
-
-    function generateQRCode() {
-        var companyName = document.getElementById('companyName').value;
-        var taxNumber = document.getElementById('taxNumber').value;
-        var invoiceDate = document.getElementById('invoiceDate').value;
-        var invoiceTotal = document.getElementById('invoiceTotal').value;
-        var taxAmount = document.getElementById('taxAmount').value;
-
-        // Adjust time to Saudi Arabia's time zone by adding 3 hours
-        var date = new Date(invoiceDate);
-        date.setHours(date.getHours() + 3);
-        var isoDate = date.toISOString();
-
-        function toTLV(tag, value) {
-            const utf8Encoder = new TextEncoder();
-            const valueBytes = utf8Encoder.encode(value);
-            const lengthBytes = [valueBytes.length];
-            return String.fromCharCode(tag) + String.fromCharCode(...lengthBytes) + String.fromCharCode(...valueBytes);
+            document.getElementById('productLines').appendChild(productLine);
         }
-
-        const tlvString = toTLV(1, companyName) +
-                          toTLV(2, taxNumber) +
-                          toTLV(3, isoDate) +
-                          toTLV(4, invoiceTotal) +
-                          toTLV(5, taxAmount);
-        
-        const base64String = btoa(tlvString);
-
-        const qrDiv = document.getElementById('qr-code');
-        qrDiv.innerHTML = '';
-
-        const qrCodeCanvas = document.createElement('canvas');
-        QRCode.toCanvas(qrCodeCanvas, base64String, function (error) {
-            if (error) {
-                console.error(error);
-                alert('حدث خطأ أثناء توليد QR كود');
+    
+        function removeProduct(element) {
+            const productLine = element.parentNode;
+            productLine.parentNode.removeChild(productLine);
+            calculateInvoiceTotal();
+        }
+    
+        function calculateProductTotal(element) {
+            const productLine = element.parentNode;
+            const quantity = productLine.querySelector('.quantity').value;
+            const price = productLine.querySelector('.price').value;
+            const total = productLine.querySelector('.total');
+    
+            if (!isNaN(quantity) && !isNaN(price)) {
+                total.value = (quantity * price).toFixed(2);
+            } else {
+                total.value = '';
+            }
+            calculateInvoiceTotal();
+        }
+    
+        function calculateInvoiceTotal() {
+            let invoiceTotal = 0;
+            const totals = document.querySelectorAll('.total');
+            totals.forEach(total => {
+                invoiceTotal += parseFloat(total.value) || 0;
+            });
+    
+            const taxNumber = document.getElementById('taxNumber').value;
+            const amountBeforeTax = taxNumber ? invoiceTotal / 1.15 : invoiceTotal;
+            const taxAmount = taxNumber ? invoiceTotal * 15 / 115 : 0;
+    
+            document.getElementById('amountBeforeTax').value = amountBeforeTax.toFixed(2);
+            document.getElementById('taxAmount').value = taxAmount.toFixed(2);
+            document.getElementById('invoiceTotal').value = invoiceTotal.toFixed(2);
+        }
+    
+        function updateTaxAmount() {
+            const taxNumber = document.getElementById('taxNumber').value;
+            const invoiceTotal = parseFloat(document.getElementById('invoiceTotal').value) || 0;
+            const taxAmount = taxNumber ? invoiceTotal * 15 / 115 : 0;
+    
+            document.getElementById('taxAmount').value = taxAmount.toFixed(2);
+            document.getElementById('amountBeforeTax').value = taxNumber ? (invoiceTotal - taxAmount).toFixed(2) : invoiceTotal.toFixed(2);
+        }
+    
+        function generateInvoice() {
+            calculateInvoiceTotal(); // Ensure totals are calculated
+            saveToLocalStorage(); // Save data to local storage
+    
+            var companyName = document.getElementById('companyName').value;
+            var taxNumber = document.getElementById('taxNumber').value;
+            var address = document.getElementById('address').value;
+            var invoiceDate = document.getElementById('invoiceDate').value;
+            var amountBeforeTax = document.getElementById('amountBeforeTax').value;
+            var invoiceTotal = document.getElementById('invoiceTotal').value;
+            var taxAmount = document.getElementById('taxAmount').value;
+            var customerName = document.getElementById('customerName').value;
+            var customerPhone = document.getElementById('customerPhone').value;
+            var customerTaxNumber = document.getElementById('customerTaxNumber').value;
+    
+            if (!companyName || !address || !invoiceDate || !amountBeforeTax || !invoiceTotal || (!taxNumber && taxAmount != 0)) {
+                alert('الرجاء تعبئة جميع الحقول');
                 return;
             }
-        });
-
-        qrDiv.appendChild(qrCodeCanvas);
-    }
-
-    function downloadInvoice() {
-        const downloadButton = document.getElementById('downloadButton');
-        downloadButton.style.display = 'none';
-
-        const invoiceElement = document.getElementById('invoice');
-
-        html2canvas(invoiceElement).then(canvas => {
-            const link = document.createElement('a');
-            link.href = canvas.toDataURL('image/png');
-            link.download = 'invoice.png';
-            link.click();
-            downloadButton.style.display = 'block';
-        }).catch(err => {
-            console.error(err);
-            alert('حدث خطأ أثناء تحميل الفاتورة.');
-            downloadButton.style.display = 'block';
-        });
-    }
-
-    function clearForm() {
-        const fields = ['companyName', 'taxNumber', 'address', 'invoiceDate', 'customerName', 'customerPhone', 'customerTaxNumber'];
-        fields.forEach(field => {
-            document.getElementById(field).value = '';
-            localStorage.removeItem(field);
-        });
-        document.getElementById('invoice').style.display = 'none';
-        document.querySelectorAll('.product-line').forEach(line => line.remove());
-        addProductLine(); // Add an initial product line
-    }
-
-    function toggleSpoiler() {
-        const spoilerContent = document.getElementById('spoilerContent');
-        if (spoilerContent.style.display === 'none' || spoilerContent.style.display === '') {
-            spoilerContent.style.display = 'block';
-        } else {
-            spoilerContent.style.display = 'none';
+    
+            document.getElementById('invCompanyName').textContent = companyName;
+            document.getElementById('invTaxNumber').textContent = taxNumber;
+            document.getElementById('invAddress').textContent = address;
+            document.getElementById('invInvoiceDate').textContent = new Date(invoiceDate).toLocaleString('ar-EG', { timeZone: 'Asia/Riyadh' });
+            document.getElementById('invAmountBeforeTax').textContent = amountBeforeTax;
+            document.getElementById('invInvoiceTotal').textContent = invoiceTotal;
+            document.getElementById('invTaxAmount').textContent = taxAmount;
+    
+            if (customerName || customerPhone || customerTaxNumber) {
+                document.getElementById('invCustomerName').textContent = customerName;
+                document.getElementById('invCustomerPhone').textContent = customerPhone;
+                document.getElementById('invCustomerTaxNumber').textContent = customerTaxNumber;
+                document.getElementById('customerInfo').style.display = 'block';
+                document.getElementById('companyInfo').style.float = 'right';
+                document.getElementById('customerInfo').style.float = 'left';
+            } else {
+                document.getElementById('customerInfo').style.display = 'none';
+                document.getElementById('companyInfo').style.float = 'none';
+                document.getElementById('companyInfo').style.textAlign = 'center';
+            }
+    
+            const invProductLines = document.getElementById('invProductLines');
+            invProductLines.innerHTML = '';
+    
+            document.querySelectorAll('.product-line').forEach(line => {
+                const product = line.querySelector('input[placeholder="المنتج"]').value;
+                const quantity = line.querySelector('.quantity').value;
+                const price = line.querySelector('.price').value;
+                const total = line.querySelector('.total').value;
+    
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${product}</td>
+                    <td>${quantity}</td>
+                    <td>${price}</td>
+                    <td>${total}</td>
+                `;
+                invProductLines.appendChild(row);
+            });
+    
+            generateQRCode();
+    
+            document.getElementById('invoice').style.display = 'block';
         }
-    }
-
-    window.onload = function() {
-        loadFromLocalStorage(); // Load data from local storage
-        addProductLine(); // Add an initial product line on page load
-    };
-</script>
-
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-</body>
-</html>
+    
+        function generateQRCode() {
+            var companyName = document.getElementById('companyName').value;
+            var taxNumber = document.getElementById('taxNumber').value;
+            var invoiceDate = document.getElementById('invoiceDate').value;
+            var invoiceTotal = document.getElementById('invoiceTotal').value;
+            var taxAmount = document.getElementById('taxAmount').value;
+    
+            // Adjust time to Saudi Arabia's time zone by adding 3 hours
+            var date = new Date(invoiceDate);
+            date.setHours(date.getHours() + 3);
+            var isoDate = date.toISOString();
+    
+            function toTLV(tag, value) {
+                const utf8Encoder = new TextEncoder();
+                const valueBytes = utf8Encoder.encode(value);
+                const lengthBytes = [valueBytes.length];
+                return String.fromCharCode(tag) + String.fromCharCode(...lengthBytes) + String.fromCharCode(...valueBytes);
+            }
+    
+            const tlvString = toTLV(1, companyName) +
+                              toTLV(2, taxNumber) +
+                              toTLV(3, isoDate) +
+                              toTLV(4, invoiceTotal) +
+                              toTLV(5, taxAmount);
+            
+            const base64String = btoa(tlvString);
+    
+            const qrDiv = document.getElementById('qr-code');
+            qrDiv.innerHTML = '';
+    
+            const qrCodeCanvas = document.createElement('canvas');
+            QRCode.toCanvas(qrCodeCanvas, base64String, function (error) {
+                if (error) {
+                    console.error(error);
+                    alert('حدث خطأ أثناء توليد QR كود');
+                    return;
+                }
+            });
+    
+            qrDiv.appendChild(qrCodeCanvas);
+        }
+    
+        function downloadInvoice() {
+            const downloadButton = document.getElementById('downloadButton');
+            downloadButton.style.display = 'none';
+    
+            const invoiceElement = document.getElementById('invoice');
+    
+            html2canvas(invoiceElement).then(canvas => {
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL('image/png');
+                link.download = 'invoice.png';
+                link.click();
+                downloadButton.style.display = 'block';
+            }).catch(err => {
+                console.error(err);
+                alert('حدث خطأ أثناء تحميل الفاتورة.');
+                downloadButton.style.display = 'block';
+            });
+        }
+    
+        function clearForm() {
+            const fields = ['companyName', 'taxNumber', 'address', 'invoiceDate', 'customerName', 'customerPhone', 'customerTaxNumber'];
+            fields.forEach(field => {
+                document.getElementById(field).value = '';
+                localStorage.removeItem(field);
+            });
+            document.getElementById('invoice').style.display = 'none';
+            document.querySelectorAll('.product-line').forEach(line => line.remove());
+            addProductLine(); // Add an initial product line
+        }
+    
+        function toggleSpoiler() {
+            const spoilerContent = document.getElementById('spoilerContent');
+            if (spoilerContent.style.display === 'none' || spoilerContent.style.display === '') {
+                spoilerContent.style.display = 'block';
+            } else {
+                spoilerContent.style.display = 'none';
+            }
+        }
+    
+        window.onload = function() {
+            loadFromLocalStorage(); // Load data from local storage
+            addProductLine(); // Add an initial product line on page load
+        };
+    </script>
+    
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    
+    </body>
+    </html>
+    
