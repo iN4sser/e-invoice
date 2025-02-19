@@ -93,6 +93,10 @@
         <h1 class="text-center mt-3">الفاتورة الإلكترونية</h1>
     
         <form id="invoiceForm">
+            <div class="form-group">
+                <label for="invoiceNumber">رقم الفاتورة:</label>
+                <input type="text" class="form-control" id="invoiceNumber">
+            </div>
             <!-- Company Information -->
             <div class="form-group">
                 <label for="companyName">اسم الشركة:</label>
@@ -165,6 +169,7 @@
         <div id="invoice">
             <div class="invoice-header">
                 <h2>فاتورة ضريبية مبسطة</h2>
+                <p>رقم الفاتورة: <span id="invInvoiceNumber"></span></p>
                 <div id="companyCustomerInfo" class="clearfix">
                     <div id="companyInfo">
                         <h3>معلومات الشركة</h3>
@@ -289,6 +294,7 @@
             calculateInvoiceTotal(); // Ensure totals are calculated
             saveToLocalStorage(); // Save data to local storage
     
+            var invoiceNumber = document.getElementById('invoiceNumber').value;
             var companyName = document.getElementById('companyName').value;
             var taxNumber = document.getElementById('taxNumber').value;
             var address = document.getElementById('address').value;
@@ -300,11 +306,12 @@
             var customerPhone = document.getElementById('customerPhone').value;
             var customerTaxNumber = document.getElementById('customerTaxNumber').value;
     
-            if (!companyName || !address || !invoiceDate || !amountBeforeTax || !invoiceTotal || (!taxNumber && taxAmount != 0)) {
+            if (!invoiceNumber || !companyName || !address || !invoiceDate || !amountBeforeTax || !invoiceTotal || (!taxNumber && taxAmount != 0)) {
                 alert('الرجاء تعبئة جميع الحقول');
                 return;
             }
     
+            document.getElementById('invInvoiceNumber').textContent = invoiceNumber;
             document.getElementById('invCompanyName').textContent = companyName;
             document.getElementById('invTaxNumber').textContent = taxNumber;
             document.getElementById('invAddress').textContent = address;
@@ -431,7 +438,16 @@
             }
         }
     
+        function generateRandomInvoiceNumber() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            return hours + minutes + seconds;
+        }
+
         window.onload = function() {
+            document.getElementById('invoiceNumber').value = generateRandomInvoiceNumber();
             loadFromLocalStorage(); // Load data from local storage
             addProductLine(); // Add an initial product line on page load
         };
@@ -443,4 +459,3 @@
     
     </body>
     </html>
-    
