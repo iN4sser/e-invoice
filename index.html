@@ -959,9 +959,9 @@
     
             const invoiceElement = document.getElementById('invoice');
     
-            // Configure html2canvas for better quality
+            // Configure html2canvas for optimized file size
             const options = {
-                scale: 2, // Higher quality
+                scale: 1.5, // Reduced from 2 to 1.5 for smaller file size
                 useCORS: true,
                 allowTaint: true,
                 backgroundColor: '#ffffff',
@@ -1006,14 +1006,14 @@
                 const imgWidth = availableWidth;
                 const imgHeight = (canvas.height * availableWidth) / canvas.width;
                 
-                // Convert image to data URL
-                const imgData = canvas.toDataURL('image/png');
+                // Convert image to data URL with compression
+                const imgData = canvas.toDataURL('image/jpeg', 0.8); // Use JPEG with 80% quality for smaller size
                 
                 // If image fits in one page
                 if (imgHeight <= availableHeight) {
                     // Center the image vertically
                     const yPosition = (pageHeight - imgHeight) / 2;
-                    pdf.addImage(imgData, 'PNG', margin, yPosition, imgWidth, imgHeight);
+                    pdf.addImage(imgData, 'JPEG', margin, yPosition, imgWidth, imgHeight, undefined, 'MEDIUM');
                 } else {
                     // Image is too tall, need multiple pages
                     let currentY = margin;
@@ -1041,9 +1041,9 @@
                             0, 0, canvas.width, sourceHeight
                         );
                         
-                        // Add to PDF
-                        const sliceData = tempCanvas.toDataURL('image/png');
-                        pdf.addImage(sliceData, 'PNG', margin, currentY, imgWidth, pageContentHeight);
+                        // Add to PDF with compression
+                        const sliceData = tempCanvas.toDataURL('image/jpeg', 0.8);
+                        pdf.addImage(sliceData, 'JPEG', margin, currentY, imgWidth, pageContentHeight, undefined, 'MEDIUM');
                         
                         // Update for next page
                         remainingHeight -= pageContentHeight;
