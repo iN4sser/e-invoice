@@ -7,221 +7,688 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --border-color: #dee2e6;
+            --shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             direction: rtl;
             text-align: right;
-            padding: 20px;
-            background-color: #f8f9fa;
-            color: #212529;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
         }
-        .form-control {
-            background-color: #ffffff;
-            color: #212529;
-            border: 1px solid #ced4da;
+
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 15px;
         }
-        .form-control::placeholder {
-            color: #6c757d;
-        }
-        .btn-primary, .btn-secondary, .btn-success {
-            margin-top: 10px;
-        }
-        #invoice {
-            display: none;
-            margin-top: 20px;
-            padding: 20px;
-            background-color: #ffffff;
-            border: 1px solid #ced4da;
-        }
-        #invoice .invoice-header, #invoice .invoice-footer {
+
+        .header {
             text-align: center;
+            color: white;
+            margin-bottom: 20px;
         }
-        #invoice .invoice-body {
-            margin-top: 20px;
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+
+        .form-section h3 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background-color: #ffffff;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+        }
+
+        .form-control::placeholder {
+            color: #999;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,123,255,0.3);
+        }
+
+        .btn-secondary {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #545b62;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(40,167,69,0.3);
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
         .product-line {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr auto;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: white;
+        }
+
+        .remove-product {
+            background: var(--danger-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            cursor: pointer;
+            font-size: 18px;
             display: flex;
             align-items: center;
-            margin-bottom: 10px;
+            justify-content: center;
+            transition: all 0.3s ease;
         }
-        .product-line input {
-            margin-right: 10px;
-            flex: 1;
+
+        .remove-product:hover {
+            background: #c82333;
+            transform: scale(1.1);
         }
-        .remove-product {
-            color: red;
-            cursor: pointer;
-            font-size: 20px;
-        }
+
         .spoiler {
             margin-bottom: 20px;
         }
+
         .spoiler-content {
             display: none;
-            margin-top: 10px;
+            margin-top: 15px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: #f8f9fa;
         }
-        hr {
-            border-top: 1px solid #ced4da;
-            margin: 20px 0;
-            clear: both;
+
+        .action-buttons {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
         }
+
+        #invoice {
+            display: none;
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            padding: 20mm;
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            box-shadow: var(--shadow);
+            border-radius: 10px;
+            page-break-after: always;
+        }
+
+        @media print {
+            body {
+                background: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                margin: 0;
+                padding: 0;
+            }
+            
+            .main-container {
+                max-width: none !important;
+                padding: 0 !important;
+                background: white !important;
+                margin: 0 !important;
+            }
+            
+            .form-container, .header {
+                display: none !important;
+            }
+            
+            #downloadButton {
+                display: none !important;
+            }
+            
+            #invoice {
+                width: 210mm !important;
+                min-height: 297mm !important;
+                margin: 0 auto !important;
+                padding: 15mm !important;
+                box-shadow: none !important;
+                border: none !important;
+                border-radius: 0 !important;
+                page-break-after: auto !important;
+                background: white !important;
+                display: block !important;
+                max-width: 210mm !important;
+            }
+            
+            /* Ensure all colors and styles are preserved */
+            .table th {
+                background: var(--primary-color) !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            .table td {
+                background: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            .table tbody tr:nth-child(even) {
+                background: #f8f9fa !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            #companyInfo, #customerInfo {
+                background: #f8f9fa !important;
+                border: 1px solid var(--border-color) !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            .totals-section {
+                background: #f8f9fa !important;
+                border: 1px solid var(--border-color) !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                display: flex !important;
+                align-items: flex-start !important;
+                gap: 20px !important;
+            }
+            
+            .qr-totals-left {
+                background: #f8f9fa !important;
+                border: 1px solid var(--border-color) !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            #footer-text {
+                background: #f8f9fa !important;
+                border: 1px solid var(--border-color) !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            hr {
+                border-top: 2px solid var(--primary-color) !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            .totals-section p:last-child {
+                color: var(--primary-color) !important;
+                border-top: 2px solid var(--primary-color) !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+
+        #invoice .invoice-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #invoice .invoice-body {
+            margin-top: 15px;
+        }
+
         .clearfix::after {
             content: "";
             display: table;
             clear: both;
         }
+
         #companyCustomerInfo {
             overflow: hidden;
             margin-bottom: 20px;
+            display: flex;
+            gap: 2%;
+            justify-content: space-between;
         }
+
         #companyInfo, #customerInfo {
-            width: 48%;
+            width: 49%;
             display: inline-block;
             vertical-align: top;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: #f8f9fa;
+            min-height: 140px;
+            box-sizing: border-box;
+            line-height: 1.3;
+            text-align: center;
         }
+
+        #companyInfo h3, #customerInfo h3 {
+            margin-bottom: 8px;
+            font-size: 1rem;
+            line-height: 1.1;
+        }
+
+        #companyInfo p, #customerInfo p {
+            margin: 4px 0;
+            line-height: 1.2;
+            font-size: 0.9rem;
+        }
+
         #companyInfo {
-            text-align: right;
+            text-align: center;
         }
+
         #customerInfo {
-            text-align: left;
+            text-align: center;
         }
+
         #invoiceLogo {
-            max-width: 300px;
-            max-height: 150px;
-            margin-bottom: 15px;
+            max-width: 200px;
+            max-height: 100px;
+            margin-bottom: 20px;
             display: block;
             margin-left: auto;
             margin-right: auto;
+            border-radius: 8px;
         }
+
         .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .table th {
+            background: var(--primary-color);
+            color: white;
+            padding: 15px;
             text-align: center;
+            font-weight: 600;
+            border: 1px solid var(--primary-color);
+        }
+
+        .table td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            background: white;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .table tbody tr:hover {
+            background: #e3f2fd;
+        }
+
+        hr {
+            border: none;
+            border-top: 2px solid var(--primary-color);
+            margin: 20px 0;
+        }
+
+        .totals-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin: 15px 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+        }
+
+        .qr-totals-left {
+            text-align: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            flex-shrink: 0;
+            min-width: 120px;
+        }
+
+        .totals-right {
+            flex: 1;
+        }
+
+        .totals-section p {
+            margin: 10px 0;
+            font-size: 16px;
+        }
+
+        .totals-section p:last-child {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--primary-color);
+            border-top: 2px solid var(--primary-color);
+            padding-top: 10px;
+        }
+
+        #footer-text {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin: 15px 0;
+        }
+
+        @media (max-width: 768px) {
+            .product-line {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            #companyCustomerInfo {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            #companyInfo, #customerInfo {
+                width: 100%;
+                margin: 0;
+                min-height: auto;
+            }
+            
+            .totals-section {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .qr-totals-left {
+                align-self: center;
+                min-width: auto;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .form-container {
+                padding: 20px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1 class="text-center mt-3">الفاتورة الإلكترونية</h1>
-    
-        <form id="invoiceForm">
-            <div class="form-group">
-                <label for="invoiceNumber">رقم الفاتورة:</label>
-                <input type="text" class="form-control" id="invoiceNumber">
-            </div>
-            <!-- Company Information -->
-            <div class="form-group">
-                <label for="companyName">اسم الشركة:</label>
-                <input type="text" class="form-control" id="companyName" placeholder="أدخل اسم الشركة">
-            </div>
-            <div class="form-group">
-                <label for="taxNumber">الرقم الضريبي:</label>
-                <input type="text" class="form-control" id="taxNumber" placeholder="أدخل الرقم الضريبي">
-            </div>
-            <div class="form-group">
-                <label for="address">العنوان:</label>
-                <input type="text" class="form-control" id="address" placeholder="أدخل العنوان">
-            </div>
-            <div class="form-group">
-                <label for="invoiceDate">تاريخ الفاتورة:</label>
-                <input type="datetime-local" class="form-control" id="invoiceDate">
-            </div>
-            <div class="form-group">
-                <label for="companyLogo">شعار الشركة:</label>
-                <input type="file" class="form-control" id="companyLogo" accept="image/*">
-            </div>
-            <div class="form-group">
-                <label for="footerText">نص في أسفل الفاتورة:</label>
-                <textarea class="form-control" id="footerText" rows="2" placeholder="أدخل النص الذي سيظهر في أسفل الفاتورة (اختياري)"></textarea>
-            </div>
-    
-            <!-- Customer Information Spoiler -->
-            <div class="spoiler">
-                <button type="button" class="btn btn-secondary" onclick="toggleSpoiler()">عرض/إخفاء معلومات العميل</button>
-                <div class="spoiler-content" id="spoilerContent">
+    <div class="main-container">
+        <div class="header">
+            <h1>🧾 الفاتورة الإلكترونية</h1>
+            <p>إنشاء فواتير احترافية بسهولة وسرعة</p>
+        </div>
+
+        <div class="form-container">
+            <form id="invoiceForm">
+                <!-- Basic Invoice Information -->
+                <div class="form-section">
+                    <h3>📋 معلومات الفاتورة الأساسية</h3>
                     <div class="form-group">
-                        <label for="customerName">العميل:</label>
-                        <input type="text" class="form-control" id="customerName" placeholder="أدخل اسم العميل">
+                        <label for="invoiceNumber">رقم الفاتورة:</label>
+                        <input type="text" class="form-control" id="invoiceNumber">
                     </div>
                     <div class="form-group">
-                        <label for="customerPhone">رقم الجوال:</label>
-                        <input type="text" class="form-control" id="customerPhone" placeholder="أدخل رقم الجوال">
-                    </div>
-                    <div class="form-group">
-                        <label for="customerTaxNumber">الرقم الضريبي:</label>
-                        <input type="text" class="form-control" id="customerTaxNumber" placeholder="أدخل الرقم الضريبي">
+                        <label for="invoiceDate">تاريخ الفاتورة:</label>
+                        <input type="datetime-local" class="form-control" id="invoiceDate">
                     </div>
                 </div>
-            </div>
-    
-            <!-- Product Lines -->
-            <div id="productLines">
-                <h3>المنتجات:</h3>
-            </div>
-            <button type="button" class="btn btn-secondary" onclick="addProductLine()">إضافة منتج</button>
-    
-            <!-- Invoice Totals -->
-            <div class="form-group">
-                <label for="amountBeforeTax">المبلغ قبل الضريبة:</label>
-                <input type="number" class="form-control" step="0.01" id="amountBeforeTax" readonly>
-            </div>
-            <div class="form-group">
-                <label for="taxAmount">مبلغ الضريبة:</label>
-                <input type="number" class="form-control" step="0.01" id="taxAmount" readonly>
-            </div>
-            <div class="form-group">
-                <label for="invoiceTotal">اجمالي الفاتورة:</label>
-                <input type="number" class="form-control" step="0.01" id="invoiceTotal" readonly>
-            </div>
-    
-            <!-- Generate and Clear Buttons -->
-            <button type="button" class="btn btn-primary" onclick="generateInvoice()">توليد الفاتورة</button>
-            <button type="button" class="btn btn-secondary" onclick="clearForm()">مسح</button>
-        </form>
+
+                <!-- Company Information -->
+                <div class="form-section">
+                    <h3>🏢 معلومات الشركة</h3>
+                    <div class="form-group">
+                        <label for="companyName">اسم الشركة:</label>
+                        <input type="text" class="form-control" id="companyName" placeholder="أدخل اسم الشركة">
+                    </div>
+                    <div class="form-group">
+                        <label for="taxNumber">الرقم الضريبي:</label>
+                        <input type="text" class="form-control" id="taxNumber" placeholder="أدخل الرقم الضريبي (اختياري)">
+                    </div>
+                    <div class="form-group">
+                        <label for="address">العنوان:</label>
+                        <input type="text" class="form-control" id="address" placeholder="أدخل العنوان">
+                    </div>
+                    <div class="form-group">
+                        <label for="companyPhone">رقم الجوال:</label>
+                        <input type="text" class="form-control" id="companyPhone" placeholder="أدخل رقم جوال الشركة">
+                    </div>
+                    <div class="form-group">
+                        <label for="companyLogo">شعار الشركة:</label>
+                        <input type="file" class="form-control" id="companyLogo" accept="image/*">
+                    </div>
+                </div>
+
+                <!-- Customer Information Spoiler -->
+                <div class="form-section">
+                    <h3>👤 معلومات العميل</h3>
+                    <button type="button" class="btn btn-secondary" onclick="toggleSpoiler()">عرض/إخفاء معلومات العميل</button>
+                    <div class="spoiler-content" id="spoilerContent">
+                        <div class="form-group">
+                            <label for="customerName">العميل:</label>
+                            <input type="text" class="form-control" id="customerName" placeholder="أدخل اسم العميل">
+                        </div>
+                        <div class="form-group">
+                            <label for="customerPhone">رقم الجوال:</label>
+                            <input type="text" class="form-control" id="customerPhone" placeholder="أدخل رقم الجوال">
+                        </div>
+                        <div class="form-group">
+                            <label for="customerTaxNumber">الرقم الضريبي:</label>
+                            <input type="text" class="form-control" id="customerTaxNumber" placeholder="أدخل الرقم الضريبي">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Lines -->
+                <div class="form-section">
+                    <h3>📦 المنتجات والخدمات</h3>
+                    <div id="productLines"></div>
+                    <button type="button" class="btn btn-primary" onclick="addProductLine()">+ إضافة منتج</button>
+                </div>
+
+                <!-- Invoice Totals -->
+                <div class="form-section">
+                    <h3>💰 إجماليات الفاتورة</h3>
+                    <div class="form-group">
+                        <label for="amountBeforeTax">المبلغ قبل الضريبة:</label>
+                        <input type="number" class="form-control" step="0.01" id="amountBeforeTax" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="taxAmount">مبلغ الضريبة:</label>
+                        <input type="number" class="form-control" step="0.01" id="taxAmount" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="invoiceTotal">إجمالي الفاتورة:</label>
+                        <input type="number" class="form-control" step="0.01" id="invoiceTotal" readonly>
+                    </div>
+                </div>
+
+                <!-- Footer Text -->
+                <div class="form-section">
+                    <h3>📝 نص إضافي</h3>
+                    <div class="form-group">
+                        <label for="footerText">نص في أسفل الفاتورة:</label>
+                        <textarea class="form-control" id="footerText" rows="3" placeholder="أدخل النص الذي سيظهر في أسفل الفاتورة (اختياري)"></textarea>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button type="button" class="btn btn-primary" onclick="generateInvoice()">🎯 توليد الفاتورة</button>
+                    <button type="button" class="btn btn-secondary" onclick="clearForm()">🗑️ مسح الجميع</button>
+                </div>
+            </form>
+        </div>
     
         <div id="invoice">
             <div class="invoice-header">
                 <img id="invoiceLogo" src="" alt="" style="display: none;">
                 <h2 id="invoiceTitle">فاتورة ضريبية مبسطة</h2>
-                <p>رقم الفاتورة: <span id="invInvoiceNumber"></span></p>
-                <div id="companyCustomerInfo" class="clearfix">
-                    <div id="companyInfo">
-                        <h3>معلومات الشركة</h3>
-                        <p>اسم الشركة: <span id="invCompanyName"></span></p>
-                        <p id="companyTaxNumberRow">الرقم الضريبي: <span id="invTaxNumber"></span></p>
-                        <p>العنوان: <span id="invAddress"></span></p>
-                    </div>
-                    <div id="customerInfo">
-                        <h3>معلومات العميل</h3>
-                        <p id="customerNameRow">العميل: <span id="invCustomerName"></span></p>
-                        <p id="customerPhoneRow">رقم الجوال: <span id="invCustomerPhone"></span></p>
-                        <p id="customerTaxNumberRow">الرقم الضريبي: <span id="invCustomerTaxNumber"></span></p>
-                    </div>
-                </div>
-                <p>تاريخ الفاتورة: <span id="invInvoiceDate"></span></p>
+                <p><strong>رقم الفاتورة:</strong> <span id="invInvoiceNumber"></span></p>
+                <p><strong>تاريخ الفاتورة:</strong> <span id="invInvoiceDate"></span></p>
             </div>
-            <hr>
+            
+            <div id="companyCustomerInfo" class="clearfix">
+                <div id="companyInfo">
+                    <h3>معلومات الشركة</h3>
+                    <p><strong>اسم الشركة:</strong> <span id="invCompanyName"></span></p>
+                    <p id="companyTaxNumberRow"><strong>الرقم الضريبي:</strong> <span id="invTaxNumber"></span></p>
+                    <p><strong>العنوان:</strong> <span id="invAddress"></span></p>
+                    <p id="companyPhoneRow"><strong>رقم الجوال:</strong> <span id="invCompanyPhone"></span></p>
+                </div>
+                <div id="customerInfo">
+                    <h3>معلومات العميل</h3>
+                    <p id="customerNameRow"><strong>العميل:</strong> <span id="invCustomerName"></span></p>
+                    <p id="customerPhoneRow"><strong>رقم الجوال:</strong> <span id="invCustomerPhone"></span></p>
+                    <p id="customerTaxNumberRow"><strong>الرقم الضريبي:</strong> <span id="invCustomerTaxNumber"></span></p>
+                </div>
+            </div>
+                        
             <div class="invoice-body">
-                <h3>المنتجات:</h3>
                 <table class="table">
                     <thead>
                         <tr>
                             <th>المنتج</th>
                             <th>الكمية</th>
                             <th>السعر</th>
-                            <th>الاجمالي</th>
+                            <th>الإجمالي</th>
                         </tr>
                     </thead>
-                    <tbody id="invProductLines">                    </tbody>
+                    <tbody id="invProductLines"></tbody>
                 </table>
+                
                 <div id="footer-text" class="text-center mt-3 mb-3" style="display: none;">
                     <p id="invFooterText"></p>
                 </div>
-                <p id="amountBeforeTaxLabel">المبلغ قبل الضريبة: <span id="invAmountBeforeTax"></span></p>
-                <p id="taxAmountRow">مبلغ الضريبة: <span id="invTaxAmount"></span></p>
-                <p>اجمالي الفاتورة: <span id="invInvoiceTotal"></span></p>
+                
+                <div class="totals-section">
+                    <div id="qr-code" class="qr-totals-left"></div>
+                    <div class="totals-right">
+                        <p id="amountBeforeTaxLabel"><strong>المبلغ قبل الضريبة:</strong> <span id="invAmountBeforeTax"></span> ريال</p>
+                        <p id="taxAmountRow"><strong>مبلغ الضريبة (15%):</strong> <span id="invTaxAmount"></span> ريال</p>
+                        <p><strong>إجمالي الفاتورة:</strong> <span id="invInvoiceTotal"></span> ريال</p>
+                    </div>
+                </div>
             </div>
-            <div id="qr-code" class="text-center mt-3"></div>
-            <button type="button" class="btn btn-success" id="downloadButton" onclick="downloadInvoice()">تحميل الفاتورة</button>
+            
+            <div class="text-center mt-3">
+                <button type="button" class="btn btn-success" id="downloadButton" onclick="downloadInvoice()">� تحميل PDF</button>
+            </div>
         </div>
     </div>
     
@@ -231,7 +698,7 @@
         });
     
         function saveToLocalStorage() {
-            const fields = ['companyName', 'taxNumber', 'address', 'invoiceDate', 'customerName', 'customerPhone', 'customerTaxNumber', 'footerText'];
+            const fields = ['companyName', 'taxNumber', 'address', 'companyPhone', 'invoiceDate', 'customerName', 'customerPhone', 'customerTaxNumber', 'footerText'];
             fields.forEach(field => {
                 const value = document.getElementById(field).value;
                 localStorage.setItem(field, value);
@@ -245,7 +712,7 @@
         }
     
         function loadFromLocalStorage() {
-            const fields = ['companyName', 'taxNumber', 'address', 'invoiceDate', 'customerName', 'customerPhone', 'customerTaxNumber', 'footerText'];
+            const fields = ['companyName', 'taxNumber', 'address', 'companyPhone', 'invoiceDate', 'customerName', 'customerPhone', 'customerTaxNumber', 'footerText'];
             fields.forEach(field => {
                 const value = localStorage.getItem(field);
                 if (value) {
@@ -266,11 +733,11 @@
             const productLine = document.createElement('div');
             productLine.className = 'product-line';
             productLine.innerHTML = `
-                <input type="text" class="form-control" placeholder="المنتج">
+                <input type="text" class="form-control" placeholder="اسم المنتج أو الخدمة">
                 <input type="number" class="form-control quantity" placeholder="الكمية" min="1" value="1" oninput="calculateProductTotal(this)">
                 <input type="number" class="form-control price" placeholder="السعر" step="0.01" oninput="calculateProductTotal(this)">
-                <input type="number" class="form-control total" placeholder="الاجمالي" readonly>
-                <span class="remove-product" onclick="removeProduct(this)">&times;</span>
+                <input type="number" class="form-control total" placeholder="الإجمالي" readonly>
+                <button type="button" class="remove-product" onclick="removeProduct(this)">&times;</button>
             `;
             document.getElementById('productLines').appendChild(productLine);
         }
@@ -301,7 +768,7 @@
             const price = productLine.querySelector('.price').value;
             const total = productLine.querySelector('.total');
     
-            if (!isNaN(quantity) && !isNaN(price)) {
+            if (!isNaN(quantity) && !isNaN(price) && quantity && price) {
                 total.value = (quantity * price).toFixed(2);
             } else {
                 total.value = '';
@@ -342,6 +809,7 @@
             var companyName = document.getElementById('companyName').value;
             var taxNumber = document.getElementById('taxNumber').value;
             var address = document.getElementById('address').value;
+            var companyPhone = document.getElementById('companyPhone').value;
             var invoiceDate = document.getElementById('invoiceDate').value;
             var amountBeforeTax = document.getElementById('amountBeforeTax').value;
             var invoiceTotal = document.getElementById('invoiceTotal').value;
@@ -350,8 +818,8 @@
             var customerTaxNumber = document.getElementById('customerTaxNumber').value;
             var footerText = document.getElementById('footerText').value;
 
-            if (!invoiceNumber || !companyName || !address || !invoiceDate || !amountBeforeTax || !invoiceTotal || (!taxNumber && taxAmount != 0)) {
-                alert('الرجاء تعبئة جميع الحقول');
+            if (!invoiceNumber || !companyName || !address || !invoiceDate || !amountBeforeTax || !invoiceTotal) {
+                alert('الرجاء تعبئة جميع الحقول المطلوبة:\n- رقم الفاتورة\n- اسم الشركة\n- العنوان\n- تاريخ الفاتورة\n- المنتجات');
                 return;
             }
 
@@ -359,6 +827,7 @@
             document.getElementById('invCompanyName').textContent = companyName;
             document.getElementById('invTaxNumber').textContent = taxNumber;
             document.getElementById('invAddress').textContent = address;
+            document.getElementById('invCompanyPhone').textContent = companyPhone;
             document.getElementById('invInvoiceDate').textContent = new Date(invoiceDate).toLocaleString('ar-EG', { timeZone: 'Asia/Riyadh' });
             document.getElementById('invAmountBeforeTax').textContent = amountBeforeTax;
             document.getElementById('invInvoiceTotal').textContent = invoiceTotal;
@@ -376,6 +845,9 @@
             document.getElementById('customerNameRow').style.display = customerName ? 'block' : 'none';
             document.getElementById('customerPhoneRow').style.display = customerPhone ? 'block' : 'none';
             document.getElementById('customerTaxNumberRow').style.display = customerTaxNumber ? 'block' : 'none';
+            
+            // Hide/show company phone field based on its value
+            document.getElementById('companyPhoneRow').style.display = companyPhone ? 'block' : 'none';
 
             // Hide/show tax-related elements based on tax number
             if (!taxNumber) {
@@ -383,13 +855,13 @@
                 document.getElementById('taxAmountRow').style.display = 'none';
                 document.getElementById('qr-code').style.display = 'none';
                 document.getElementById('companyTaxNumberRow').style.display = 'none';
-                document.getElementById('amountBeforeTaxLabel').innerHTML = 'المبلغ: <span id="invAmountBeforeTax">' + amountBeforeTax + '</span>';
+                document.getElementById('amountBeforeTaxLabel').innerHTML = 'المبلغ: <span id="invAmountBeforeTax">' + amountBeforeTax + '</span> ريال';
             } else {
                 document.getElementById('invoiceTitle').textContent = 'فاتورة ضريبية مبسطة';
                 document.getElementById('taxAmountRow').style.display = 'block';
                 document.getElementById('qr-code').style.display = 'block';
                 document.getElementById('companyTaxNumberRow').style.display = 'block';
-                document.getElementById('amountBeforeTaxLabel').innerHTML = 'المبلغ قبل الضريبة: <span id="invAmountBeforeTax">' + amountBeforeTax + '</span>';
+                document.getElementById('amountBeforeTaxLabel').innerHTML = 'المبلغ قبل الضريبة: <span id="invAmountBeforeTax">' + amountBeforeTax + '</span> ريال';
             }
     
             if (customerName || customerPhone || customerTaxNumber) {
@@ -397,31 +869,38 @@
                 document.getElementById('invCustomerPhone').textContent = customerPhone;
                 document.getElementById('invCustomerTaxNumber').textContent = customerTaxNumber;
                 document.getElementById('customerInfo').style.display = 'block';
-                document.getElementById('companyInfo').style.float = 'right';
-                document.getElementById('companyInfo').style.textAlign = 'right';
-                document.getElementById('customerInfo').style.float = 'left';
+                document.getElementById('companyInfo').style.float = 'none';
+                document.getElementById('companyInfo').style.textAlign = 'center';
+                document.getElementById('customerInfo').style.float = 'none';
+                document.getElementById('customerInfo').style.textAlign = 'center';
+                document.getElementById('companyInfo').style.width = '49%';
+                document.getElementById('customerInfo').style.width = '49%';
             } else {
                 document.getElementById('customerInfo').style.display = 'none';
                 document.getElementById('companyInfo').style.float = 'none';
                 document.getElementById('companyInfo').style.textAlign = 'center';
+                document.getElementById('companyInfo').style.width = '100%';
             }
     
             const invProductLines = document.getElementById('invProductLines');
             invProductLines.innerHTML = '';
     
             document.querySelectorAll('.product-line').forEach(line => {
-                const product = line.querySelector('input[placeholder="المنتج"]').value;
+                const product = line.querySelector('input[placeholder*="المنتج"]').value;
                 const quantity = line.querySelector('.quantity').value;
                 const price = line.querySelector('.price').value;
                 const total = line.querySelector('.total').value;
     
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${product}</td>
-                    <td>${quantity}</td>
-                    <td>${price}</td>
-                    <td>${total}</td>
-                `;                invProductLines.appendChild(row);
+                if (product && quantity && price) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${product}</td>
+                        <td>${quantity}</td>
+                        <td>${price} ريال</td>
+                        <td>${total} ريال</td>
+                    `;
+                    invProductLines.appendChild(row);
+                }
             });
 
             // Only generate QR code if tax number exists
@@ -480,11 +959,108 @@
     
             const invoiceElement = document.getElementById('invoice');
     
-            html2canvas(invoiceElement).then(canvas => {
-                const link = document.createElement('a');
-                link.href = canvas.toDataURL('image/png');
-                link.download = 'invoice.png';
-                link.click();
+            // Configure html2canvas for better quality
+            const options = {
+                scale: 2, // Higher quality
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: '#ffffff',
+                scrollX: 0,
+                scrollY: 0,
+                logging: false,
+                onclone: function(clonedDoc) {
+                    // Ensure all styles are preserved in the clone
+                    const clonedInvoice = clonedDoc.getElementById('invoice');
+                    const clonedButton = clonedDoc.getElementById('downloadButton');
+                    if (clonedInvoice) {
+                        clonedInvoice.style.display = 'block';
+                        clonedInvoice.style.backgroundColor = '#ffffff';
+                        clonedInvoice.style.margin = '0';
+                        clonedInvoice.style.padding = '20px';
+                    }
+                    if (clonedButton) {
+                        clonedButton.style.display = 'none';
+                    }
+                }
+            };
+    
+            html2canvas(invoiceElement, options).then(canvas => {
+                // Create PDF using jsPDF
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+                
+                // A4 dimensions in mm
+                const pageWidth = 210;
+                const pageHeight = 297;
+                const margin = 10; // 10mm margin on all sides
+                
+                // Calculate available space
+                const availableWidth = pageWidth - (margin * 2);
+                const availableHeight = pageHeight - (margin * 2);
+                
+                // Calculate image dimensions
+                const imgWidth = availableWidth;
+                const imgHeight = (canvas.height * availableWidth) / canvas.width;
+                
+                // Convert image to data URL
+                const imgData = canvas.toDataURL('image/png');
+                
+                // If image fits in one page
+                if (imgHeight <= availableHeight) {
+                    // Center the image vertically
+                    const yPosition = (pageHeight - imgHeight) / 2;
+                    pdf.addImage(imgData, 'PNG', margin, yPosition, imgWidth, imgHeight);
+                } else {
+                    // Image is too tall, need multiple pages
+                    let currentY = margin;
+                    let remainingHeight = imgHeight;
+                    let sourceY = 0;
+                    
+                    while (remainingHeight > 0) {
+                        // Calculate height for current page
+                        const pageContentHeight = Math.min(remainingHeight, availableHeight);
+                        
+                        // Calculate source height in canvas pixels
+                        const sourceHeight = (pageContentHeight * canvas.width) / availableWidth;
+                        
+                        // Create a temporary canvas for this page slice
+                        const tempCanvas = document.createElement('canvas');
+                        const tempContext = tempCanvas.getContext('2d');
+                        
+                        tempCanvas.width = canvas.width;
+                        tempCanvas.height = sourceHeight;
+                        
+                        // Draw the slice of the original canvas
+                        tempContext.drawImage(
+                            canvas,
+                            0, sourceY, canvas.width, sourceHeight,
+                            0, 0, canvas.width, sourceHeight
+                        );
+                        
+                        // Add to PDF
+                        const sliceData = tempCanvas.toDataURL('image/png');
+                        pdf.addImage(sliceData, 'PNG', margin, currentY, imgWidth, pageContentHeight);
+                        
+                        // Update for next page
+                        remainingHeight -= pageContentHeight;
+                        sourceY += sourceHeight;
+                        
+                        // Add new page if there's more content
+                        if (remainingHeight > 0) {
+                            pdf.addPage();
+                            currentY = margin;
+                        }
+                    }
+                }
+                
+                // Download the PDF
+                const invoiceNumber = document.getElementById('invoiceNumber').value || 'invoice';
+                pdf.save(`فاتورة_${invoiceNumber}.pdf`);
+                
                 downloadButton.style.display = 'block';
             }).catch(err => {
                 console.error(err);
@@ -494,7 +1070,7 @@
         }
     
         function clearForm() {
-            const fields = ['companyName', 'taxNumber', 'address', 'invoiceDate', 'customerName', 'customerPhone', 'customerTaxNumber', 'footerText'];
+            const fields = ['companyName', 'taxNumber', 'address', 'companyPhone', 'invoiceDate', 'customerName', 'customerPhone', 'customerTaxNumber', 'footerText'];
             fields.forEach(field => {
                 document.getElementById(field).value = '';
                 localStorage.removeItem(field);
